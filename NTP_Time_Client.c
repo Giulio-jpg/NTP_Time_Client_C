@@ -10,6 +10,7 @@
 #include <time.h>
 #include <stdio.h>
 #define NTP_PACKET_SIZE 48
+#define SECONDS_IN_70_YEARS 2208988800
 
 typedef struct ntp_packet
 {
@@ -86,17 +87,21 @@ int main(int argc, char **argv)
             printf("Root delay: %lu\n", packet.root_delay);
             printf("Root dispersion: %lu\n", packet.root_dispersion);
             printf("Ref ID: %c%c%c%c\n", packet.rfid[0], packet.rfid[1], packet.rfid[2], packet.rfid[3]);
-            // Here I'm cutting the fractionary part, to show only the seconds passed from 1900
+            // Here I'm cutting the fractionary part, to show only the seconds passed from 1/01/1900
             printf("Ref timestamp: %lu\n",      ntohl(packet.ref_timestamp));
             printf("Original timestamp: %lu\n", ntohl(packet.original_timestamp));
             printf("Received timestamp: %lu\n", ntohl(packet.receive_timestamp));
             printf("Transmit timestamp: %lu\n", ntohl(packet.transmit_timestamp));
 
-            unsigned long long actual_time = packet.receive_timestamp;
+            time_t actual_time = packet.receive_timestamp;
             actual_time = ntohl(actual_time);
-            actual_time -= 2208988800U;
+            actual_time -= SECONDS_IN_70_YEARS;
 
-            printf("Actual time: %s", ctime(&actual_time));
+            char outstr[1024];
+            struct tm* tmp;
+            tmp = localtime(&actual_time);
+            strftime(outstr, sizeof(outstr), "%A, %d %B %Y %T", tmp);
+            printf("Result string is \"%s\"\n", outstr);
 
             break;
         }
