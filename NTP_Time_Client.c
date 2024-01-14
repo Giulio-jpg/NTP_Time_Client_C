@@ -66,17 +66,14 @@ int main(int argc, char **argv)
 
     for (;;)
     {
-        char buffer[NTP_PACKET_SIZE];
         struct sockaddr_in sender_in;
         int sender_in_size = sizeof(sender_in);
-        int len = recvfrom(s, buffer, NTP_PACKET_SIZE, 0, (struct sockaddr *)&sender_in, &sender_in_size);
+        int len = recvfrom(s, (char *)&packet, NTP_PACKET_SIZE, 0, (struct sockaddr *)&sender_in, &sender_in_size);
         if (len > 0)
         {
             char addr_as_string[64];
             inet_ntop(AF_INET, &sender_in.sin_addr, addr_as_string, 64);
             printf("received %d bytes from %s:%d\n", len, addr_as_string, ntohs(sender_in.sin_port));
-
-            memcpy(&packet, &buffer, NTP_PACKET_SIZE);
 
             // converting from network byte order (which is big endian) to host byte order (which, usually, is little endian)
             packet.root_delay = ntohl(packet.root_delay);
@@ -97,7 +94,7 @@ int main(int argc, char **argv)
             actual_time = ntohl(actual_time);
             actual_time -= SECONDS_IN_70_YEARS;
 
-            char outstr[1024];
+            char outstr[NTP_PACKET_SIZE];
             struct tm* tmp;
             tmp = localtime(&actual_time);
             strftime(outstr, sizeof(outstr), "%A, %d %B %Y %T", tmp);
