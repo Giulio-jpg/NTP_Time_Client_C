@@ -12,6 +12,8 @@
 #define NTP_PACKET_SIZE 48
 #define SECONDS_IN_70_YEARS 2208988800
 
+
+
 typedef struct ntp_packet
 {
     unsigned char leap_version_mode;
@@ -79,19 +81,25 @@ int main(int argc, char **argv)
             packet.root_delay = ntohl(packet.root_delay);
             packet.root_dispersion = ntohl(packet.root_dispersion);
 
+
+
+            time_t actual_time = ntohl(packet.receive_timestamp);
+            packet.ref_timestamp = ntohll(packet.ref_timestamp);
+            packet.original_timestamp = ntohll(packet.original_timestamp);
+            packet.receive_timestamp = ntohll(packet.receive_timestamp);
+            packet.transmit_timestamp = ntohll(packet.transmit_timestamp);
+
             printf("Leap second: %d \nVersion: %d \nMode: %d\n", packet.leap_version_mode >> 6, (packet.leap_version_mode >> 3) & 0b111, packet.leap_version_mode & 0b111);
             printf("Stratum: %d \nPoll: %d \nPrecision: %d\n", packet.stratum, packet.poll, packet.precision);
             printf("Root delay: %lu\n", packet.root_delay);
             printf("Root dispersion: %lu\n", packet.root_dispersion);
             printf("Ref ID: %c%c%c%c\n", packet.rfid[0], packet.rfid[1], packet.rfid[2], packet.rfid[3]);
             // Here I'm cutting the fractionary part, to show only the seconds passed from 1/01/1900
-            printf("Ref timestamp: %lu\n",      ntohl(packet.ref_timestamp));
-            printf("Original timestamp: %lu\n", ntohl(packet.original_timestamp));
-            printf("Received timestamp: %lu\n", ntohl(packet.receive_timestamp));
-            printf("Transmit timestamp: %lu\n", ntohl(packet.transmit_timestamp));
+            printf("Ref timestamp: %llu\n",      packet.ref_timestamp);
+            printf("Original timestamp: %llu\n", packet.original_timestamp);
+            printf("Received timestamp: %llu\n", packet.receive_timestamp);
+            printf("Transmit timestamp: %llu\n", packet.transmit_timestamp);
 
-            time_t actual_time = packet.receive_timestamp;
-            actual_time = ntohl(actual_time);
             actual_time -= SECONDS_IN_70_YEARS;
 
             char outstr[NTP_PACKET_SIZE];
