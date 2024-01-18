@@ -9,10 +9,7 @@
 
 #include <time.h>
 #include <stdio.h>
-#define NTP_PACKET_SIZE 48
 #define SECONDS_IN_70_YEARS 2208988800
-
-
 
 typedef struct ntp_packet
 {
@@ -28,6 +25,8 @@ typedef struct ntp_packet
     unsigned long long receive_timestamp;
     unsigned long long transmit_timestamp;
 } ntp_packet;
+
+
 
 int main(int argc, char **argv)
 {
@@ -63,14 +62,14 @@ int main(int argc, char **argv)
 
     ntp_packet packet = {leap << 6 | version << 3 | mode, 0, 0, 0, 0, 0, {0, 0, 0, 0}, 0, now, 0, 0};
 
-    int sent_bytes = sendto(s, (char *)&packet, NTP_PACKET_SIZE, 0, (struct sockaddr *)&sin, sizeof(sin));
+    int sent_bytes = sendto(s, (char *)&packet, sizeof(packet), 0, (struct sockaddr *)&sin, sizeof(sin));
     printf("sent %d bytes via UDP \n", sent_bytes);
 
     for (;;)
     {
         struct sockaddr_in sender_in;
         int sender_in_size = sizeof(sender_in);
-        int len = recvfrom(s, (char *)&packet, NTP_PACKET_SIZE, 0, (struct sockaddr *)&sender_in, &sender_in_size);
+        int len = recvfrom(s, (char *)&packet, sizeof(packet), 0, (struct sockaddr *)&sender_in, &sender_in_size);
         if (len > 0)
         {
             char addr_as_string[64];
@@ -102,7 +101,7 @@ int main(int argc, char **argv)
 
             actual_time -= SECONDS_IN_70_YEARS;
 
-            char outstr[NTP_PACKET_SIZE];
+            char outstr[4096];
             struct tm* tmp;
             tmp = localtime(&actual_time);
             strftime(outstr, sizeof(outstr), "%A, %d %B %Y %T", tmp);
