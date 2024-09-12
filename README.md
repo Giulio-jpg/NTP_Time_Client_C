@@ -1,6 +1,6 @@
 # About
 
-It's a simple program written in C, which asks the current time from google NTP server time4.google.com
+It's a simple program written in C, which asks the current time to google NTP server time4.google.com
 
 NTP packet consists of this structure:
 
