@@ -80,9 +80,7 @@ int main(int argc, char **argv)
             packet.rootDelay = ntohl(packet.rootDelay);
             packet.rootDispersion = ntohl(packet.rootDispersion);
 
-
-
-            time_t actualTime = ntohl(packet.receiveTimestamp);
+            time_t currentTime = ntohl(packet.receiveTimestamp);
             packet.refTimestamp = ntohll(packet.refTimestamp);
             packet.originalTimestamp = ntohll(packet.originalTimestamp);
             packet.receiveTimestamp = ntohll(packet.receiveTimestamp);
@@ -98,13 +96,13 @@ int main(int argc, char **argv)
             printf("Received timestamp: %llu\n", packet.receiveTimestamp);
             printf("Transmit timestamp: %llu\n", packet.transmitTimestamp);
 
-            actualTime -= SECONDS_IN_70_YEARS;
+            currentTime -= SECONDS_IN_70_YEARS;
 
             char outstr[4096];
             struct tm* tmp;
-            tmp = localtime(&actualTime);
+            tmp = localtime(&currentTime);
             strftime(outstr, sizeof(outstr), "%A, %d %B %Y %T", tmp);
-            printf("Result string is \"%s\"\n", outstr);
+            printf("The date is \"%s\"\n", outstr);
 
             break;
         }
@@ -113,3 +111,4 @@ int main(int argc, char **argv)
     return 0;
 }
 
+// to compile using clang:    clang -o ntp_client.exe NTP_Time_Client.c -lws2_32
